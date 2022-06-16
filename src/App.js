@@ -30,7 +30,26 @@ function App() {
 
   // const { isLoading, error, sendRequest } = httpData;
 
-  // fetchTask as a dependency creates an infinite loop right now
+  // fetchTask as a dependency creates an infinite loop right now:
+
+  // fetchTasks() is called.
+  // sendRequest function will be executed in custom hook.
+  // sendRequest will set some states.
+  // When the states are set, the App component (where the custom hook is used)
+  // will be re-rendered.
+
+  // Because when you use a custom hook, which uses a state,
+  // and you use that state in a component,
+  // that component will implicitly use that state set up in the custom hook
+
+  // i.e the state configured in the custom hook,
+  // is attached to the component where you use the custom hook
+
+  // And then App component will call the custom hook again
+  // sendRequest function will be re-created
+  // new function object will be returned (sendRequest -> fetchTasks)
+  // Then, useEffect will run again
+
   useEffect(() => {
     fetchTasks();
   }, []);
