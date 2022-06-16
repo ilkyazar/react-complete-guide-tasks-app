@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import Tasks from './components/Tasks/Tasks';
 import NewTask from './components/NewTask/NewTask';
@@ -7,7 +7,7 @@ import useHttp from './hooks/use-http';
 function App() {
   const [tasks, setTasks] = useState([]);
 
-  const transformTasks = (tasksObj) => {
+  const transformTasks = useCallback((tasksObj) => {
     const loadedTasks = [];
 
     for (const taskKey in tasksObj) {
@@ -15,18 +15,13 @@ function App() {
     }
 
     setTasks(loadedTasks);
-  };
+  }, []);
 
   const {
     isLoading,
     error,
     sendRequest: fetchTasks,
-  } = useHttp(
-    {
-      url: 'https://rcg-star-wars-http-default-rtdb.europe-west1.firebasedatabase.app/tasks.json',
-    },
-    transformTasks
-  );
+  } = useHttp(transformTasks);
 
   // const { isLoading, error, sendRequest } = httpData;
 
@@ -50,9 +45,13 @@ function App() {
   // new function object will be returned (sendRequest -> fetchTasks)
   // Then, useEffect will run again
 
+  // So, useCallback should be used in the custom hook
+
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    fetchTasks({
+      url: 'https://rcg-star-wars-http-default-rtdb.europe-west1.firebasedatabase.app/tasks.json',
+    });
+  }, [fetchTasks]);
 
   const taskAddHandler = (task) => {
     setTasks((prevTasks) => prevTasks.concat(task));
